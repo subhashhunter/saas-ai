@@ -25,7 +25,7 @@ export async function GET(req:NextRequest){
         })
         const totalItems=await prisma.todo.count({
             where:{
-                id:userId,
+                userId,
                 title:{
                     contains:"search",
                     mode:"insensitive"
