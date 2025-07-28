@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/primsa";
 
+function getTodoIdFromUrl(req: NextRequest): string | null {
+  const urlParts = req.nextUrl.pathname.split("/");
+  const id = urlParts[urlParts.length - 1];
+  return id || null;
+}
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: NextRequest) {
   const { userId } =await auth();
 
   if (!userId) {
@@ -15,11 +17,13 @@ export async function PUT(
 
   try {
     const { completed } = await req.json();
-    const todoId = params.id;
+    const todoId = getTodoIdFromUrl(req);
 
-    const todo = await prisma.todo.findUnique({
-      where: { id: todoId },
-    });
+    if (!todoId) {
+      return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+    }
+
+    const todo = await prisma.todo.findUnique({ where: { id: todoId } });
 
     if (!todo) {
       return NextResponse.json({ error: "Todo not found" }, { status: 404 });
@@ -43,10 +47,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: NextRequest) {
   const { userId } =await auth();
 
   if (!userId) {
@@ -54,11 +55,13 @@ export async function DELETE(
   }
 
   try {
-    const todoId = params.id;
+    const todoId = getTodoIdFromUrl(req);
 
-    const todo = await prisma.todo.findUnique({
-      where: { id: todoId },
-    });
+    if (!todoId) {
+      return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+    }
+
+    const todo = await prisma.todo.findUnique({ where: { id: todoId } });
 
     if (!todo) {
       return NextResponse.json({ error: "Todo not found" }, { status: 404 });
@@ -68,9 +71,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    await prisma.todo.delete({
-      where: { id: todoId },
-    });
+    await prisma.todo.delete({ where: { id: todoId } });
 
     return NextResponse.json({ message: "Todo deleted successfully" });
   } catch (error) {
