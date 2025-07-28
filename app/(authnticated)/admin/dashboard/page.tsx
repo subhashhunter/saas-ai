@@ -1,3 +1,5 @@
+'use client';
+
 import Todoitem from "@/components/Todoitem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
