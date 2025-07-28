@@ -42,10 +42,10 @@ export async function DELETE(req:NextRequest,{params}:{params:{id:string}}){
         console.error(error)
         return NextResponse.json({
             error:"internal server error while deleting the todo"
-        },{status:200})
+        },{status:500})
     }
 }
-export async function  PUT(req:NextRequest,{params}:{params:{id:string}}){
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }){
     const {userId}=await auth();
     if(!userId){
         return NextResponse.json({
